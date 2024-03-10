@@ -1,25 +1,71 @@
-import React from 'react'
-import axios from 'axios'
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 
 function Login() {
+  const navigate = useNavigate();
+  const [data, setData] = useState({
+    email: "",
+    password: ""
+  });
 
-    const loginuser = (e) => {
-        e.preventDefault();
-        // console.log("Login Successfull");
-        axios.get('/')
+  const handleChange = (e) => {
+    setData({
+      ...data,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const loginuser = async (e) => {
+    e.preventDefault();
+    const { email, password } = data;
+    try {
+      const response = await axios.post("/login", {
+        email,
+        password
+      });
+      const responseData = response.data;
+      if (responseData.error) {
+        toast.error(responseData.error);
+      } else {
+        setData({
+          email: "",
+          password: ""
+        });
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
     }
+  };
+
   return (
     <div>
       <h1>Login page</h1>
-      <form action="" onSubmit={loginuser}>
-        <label htmlFor="">Enter Email...</label>
-        <input type="Email" placeholder='Enter Email...' />
-        <label htmlFor="">Password</label>
-        <input type="password" placeholder='Enter password...' />
-        <button type='submit'>Submit</button>
+      <form onSubmit={loginuser}>
+        <label htmlFor="email">Enter Email...</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter Email..."
+          value={data.email}
+          onChange={handleChange}
+        />
+        <label htmlFor="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter password..."
+          value={data.password}
+          onChange={handleChange}
+        />
+        <button type="submit">Submit</button>
       </form>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;
